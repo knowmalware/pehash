@@ -16,17 +16,18 @@ a hasher object, a string of the hexadecimal-encoded hash value, or
 None on error.
 
 Arguments:
-    file_path: the path to a PE file on disk.  Will be passed to
-        pefile.PE(...)
-    pe: an instantiated pefile.PE object.
-    file_data: a buffer containing the data for a PE file.  Will be
-        passed to pefile.PE(...)
-    hasher: an object that implements .update(data).  If given to the
+
+* file\_path: the path to a PE file on disk.  Will be passed to
+  pefile.PE(...)
+* pe: an instantiated pefile.PE object.
+  file\_data: a buffer containing the data for a PE file.  Will be
+  passed to pefile.PE(...)
+* hasher: an object that implements .update(data).  If given to the
         *_hex functions, must also implement .hexdigest().  The hash
         objects from the hashlib library support this API.
         Example:  hasher=hashlib.sha256()
-    raise_on_error: if set to True, then will raise any exceptions.
-        Otherwise, will return None on any exception.
+* raise\_on\_error: if set to True, then will raise any exceptions.
+  Otherwise, will return None on any exception.
 
 ## Original paper:
     Wicherski, Georg. 2009. peHash: a novel approach to fast malware clustering.
