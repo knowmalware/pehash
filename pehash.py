@@ -329,18 +329,18 @@ def endgame(file_path=None, pe=None, file_data=None, hasher=None, raise_on_error
         exe = pe
 
     try:
-        characteristics = bitstring.BitArray(uint=pe.FILE_HEADER.Characteristics, length=16)
-        subsystem = bitstring.BitArray(uint=pe.OPTIONAL_HEADER.Subsystem, length=16)
+        characteristics = bitstring.BitArray(uint=exe.FILE_HEADER.Characteristics, length=16)
+        subsystem = bitstring.BitArray(uint=exe.OPTIONAL_HEADER.Subsystem, length=16)
 
         # Rounded up to page boundary size
-        sizeOfStackCommit = bitstring.BitArray(uint=_roundUp(pe.OPTIONAL_HEADER.SizeOfStackCommit), length=32)
-        sizeOfHeapCommit = bitstring.BitArray(uint=_roundUp(pe.OPTIONAL_HEADER.SizeOfHeapCommit), length=32)
+        sizeOfStackCommit = bitstring.BitArray(uint=_roundUp(exe.OPTIONAL_HEADER.SizeOfStackCommit), length=32)
+        sizeOfHeapCommit = bitstring.BitArray(uint=_roundUp(exe.OPTIONAL_HEADER.SizeOfHeapCommit), length=32)
 
         #sort these:
         sections = [];
-        for section in pe.sections:
+        for section in exe.sections:
             #calculate kolmogrov:
-            data = pe.get_memory_mapped_image()[section.VirtualAddress: section.VirtualAddress + section.SizeOfRawData]
+            data = exe.get_memory_mapped_image()[section.VirtualAddress: section.VirtualAddress + section.SizeOfRawData]
             compressedLength = len(bz2.compress(data))
 
             kolmogrov = 0
