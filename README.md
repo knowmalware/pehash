@@ -1,12 +1,12 @@
 # pehash
 Compilation of peHash implementations.
 
-While several tools currently use a TotalHash-compatible implementation,
+Several tools currently use a TotalHash-compatible implementation, however
 the malware analysis and research communities have not yet clearly chosen
-a winner.
+a winner.  This modules provides a unified interface to all known peHash
+implementations.
 
-Currently there are four implementations here.  References for each
-implementation are in each function's docs.
+References specific to each implementation are in each function's docs.
 
 For a discussion of known problems with the TotalHash-compatible
 implementations, see https://gist.github.com/wxsBSD/07a5709fdcb59d346e9e
@@ -20,7 +20,7 @@ Arguments:
 * file\_path: the path to a PE file on disk.  Will be passed to
   pefile.PE(...)
 * pe: an instantiated pefile.PE object.
-  file\_data: a buffer containing the data for a PE file.  Will be
+* file\_data: a buffer containing the data for a PE file.  Will be
   passed to pefile.PE(...)
 * hasher: an object that implements .update(data).  If given to the
         *_hex functions, must also implement .hexdigest().  The hash
