@@ -625,7 +625,7 @@ def totalhash_hex(file_path=None, pe=None, file_data=None, hasher=None, raise_on
 
 def anymaster_v1_0_1_hex(file_path=None, pe=None, file_data=None, hasher=None, raise_on_error=False):
     """Same as anymaster_v1_0_1(...) but returns either str hex digest or None."""
-    hd = anymaster(file_path, pe, file_data, hasher, raise_on_error)
+    hd = anymaster_v1_0_1(file_path, pe, file_data, hasher, raise_on_error)
     if hd:
         return hd.hexdigest()
 
@@ -658,8 +658,8 @@ if __name__ == '__main__':
         print("Error: no file specified")
         sys.exit(0)
     pe = pefile.PE(sys.argv[1])
-    print('totalhash', totalhash(pe=pe).hexdigest(), sys.argv[1])
-    print('anymaster', anymaster(pe=pe).hexdigest(), sys.argv[1])
-    print('anymaster_v1_0_1', anymaster_v1_0_1(pe=pe).hexdigest(), sys.argv[1])
-    print('endgame', endgame(pe=pe).hexdigest(), sys.argv[1])
-    print('crits', crits(pe=pe).hexdigest(), sys.argv[1])
+    print('totalhash', totalhash_hex(pe=pe), sys.argv[1])
+    print('anymaster', anymaster_hex(pe=pe), sys.argv[1])
+    print('anymaster_v1_0_1', anymaster_v1_0_1_hex(pe=pe), sys.argv[1])
+    print('endgame', endgame_hex(pe=pe), sys.argv[1])
+    print('crits', crits_hex(pe=pe), sys.argv[1])

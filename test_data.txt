@@ -1,0 +1,30 @@
+# These test files can be found on www.oldapps.com
+#
+# Format for each entry is:
+#   MD5  FILENAME
+#   (pehash_algorithm_name, pehash)
+#   ...
+# When pehash is None, then the associated implementation would
+# have raised exception.
+
+fcd1b1472302fc7283147f4df471f402  7z465.exe
+('totalhash', '4a78d5d83ea85c534be7bffc00e6637616e44bf9')
+('anymaster', '662e3a3c1e5430c51d25e7adfb18b22b3c4cd161')
+('anymaster_v1_0_1', '085a8a3454183adadc20cbe2f034b98fa2a4d775')
+('endgame', 'dd00a9c21914d71758a3e22dc3430631')
+('crits', '60046843c85b94f87bdc9be5f9ecae7983f83d43')
+
+3f198d31352656838d06b68693e56d89  Firefox Setup 37.0.2.exe
+('totalhash', 'fa5d5ddc17249ff3b884934bf292994bac4923aa')
+('anymaster', '610aaf0f4989888192218bc2b947d1385923d28f')
+('anymaster_v1_0_1', 'a1236c3db1602ee2cc6214a94856cbcee9989526')
+('endgame', '1aaf460d0e422091a9985bde222ec0ff')
+('crits', '1729dbba4aa062a7784ce6e057a27a2479d53df7')
+
+9b6f7231533f04b75f3b3c86cb9d0117  winrar-x64-521.exe
+('totalhash', None)
+('anymaster', '026ce32731cb09062b8292d8a9e33d5e93276dec')
+('anymaster_v1_0_1', '0c1375ff3aa7b960eb80b540472f71a05b58923c')
+('endgame', 'adce64dd14c6ff1ddbcd155c56621e88')
+('crits', None)
+
