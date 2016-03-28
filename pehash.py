@@ -215,6 +215,115 @@ def anymaster(file_path=None, pe=None, file_data=None, hasher=None, raise_on_err
         pehash_bin = img_chars[0:8] ^ img_chars[8:16]
 
         # Subsystem
+        subsystem = bitstring.pack('uint:16', exe.OPTIONAL_HEADER.Subsystem)
+        pehash_bin.append(subsystem[0:8] ^ subsystem[8:16])
+
+        # Stack Commit Size, rounded up to a value divisible by 4096,
+        # Windows page boundary, 8 lower bits must be discarded
+        # in PE32+ is 8 bytes
+        stack_commit = exe.OPTIONAL_HEADER.SizeOfStackCommit
+        if stack_commit % 4096:
+            stack_commit += 4096 - stack_commit % 4096
+        stack_commit = bitstring.pack('uint:56', stack_commit >> 8)
+        pehash_bin.append(
+            stack_commit[:8] ^ stack_commit[8:16] ^
+            stack_commit[16:24] ^ stack_commit[24:32] ^
+            stack_commit[32:40] ^ stack_commit[40:48] ^ stack_commit[48:56])
+
+        # Heap Commit Size, rounded up to page boundary size,
+        # 8 lower bits must be discarded
+        # in PE32+ is 8 bytes
+        heap_commit = exe.OPTIONAL_HEADER.SizeOfHeapCommit
+        if heap_commit % 4096:
+            heap_commit += 4096 - heap_commit % 4096
+        heap_commit = bitstring.pack('uint:56', heap_commit >> 8)
+        pehash_bin.append(
+            heap_commit[:8] ^ heap_commit[8:16] ^
+            heap_commit[16:24] ^ heap_commit[24:32] ^
+            heap_commit[32:40] ^ heap_commit[40:48] ^ heap_commit[48:56])
+
+        # Section structural information
+        for section in exe.sections:
+            # Virtual Address, 9 lower bits must be discarded
+            pehash_bin.append(bitstring.pack('uint:24', section.VirtualAddress >> 9))
+
+            # Size Of Raw Data, 8 lower bits must be discarded
+            pehash_bin.append(bitstring.pack('uint:24', section.SizeOfRawData >> 8))
+
+            # Section Characteristics, 16 lower bits must be discarded
+            sect_chars = bitstring.pack('uint:16', section.Characteristics >> 16)
+            pehash_bin.append(sect_chars[:8] ^ sect_chars[8:16])
+
+            # Kolmogorov Complexity, len(Bzip2(data))/len(data)
+            # (0..1} ∈ R   ->  [0..7] ⊂ N
+            kolmogorov = 0
+            if section.SizeOfRawData:
+                kolmogorov = int(round(
+                    len(bz2.compress(section.get_data()))
+                    * 7.0 /
+                    section.SizeOfRawData))
+                if kolmogorov > 7:
+                    kolmogorov = 7
+            pehash_bin.append(bitstring.pack('uint:8', kolmogorov))
+
+        assert 0 == pehash_bin.len % 8
+        if not pe:
+            exe.close()
+
+        if not hasher:
+            hasher = hashlib.sha1()
+        hasher.update(pehash_bin.tobytes())
+        return hasher
+    except Exception as e:
+        if raise_on_error:
+            raise
+        else:
+            return None
+
+
+def anymaster_v1_0_1(file_path=None, pe=None, file_data=None, hasher=None, raise_on_error=False):
+    """Given a PE file, calculate the pehash using the
+    AnyMaster implementation v1.0.1, which uses pe.FILE_HEADER.Machine
+    in subsystem bitstring.
+
+    For a description of the arguments, see the module documenation.
+
+    If no hasher is given, uses hashlib.sha1()
+
+    To obtain the hash, call hexdigest(), for example:
+        myPE = pefile.PE('myfile.bin')
+        sha1_obj = totalhash(pe=myPE)
+        print sha1_obj.hexdigest()
+
+    Reference:
+      https://github.com/AnyMaster/pehash
+    """
+    # Based upon the AnyMaster v1.0.1 implementation of pehash
+    # from https://github.com/AnyMaster/pehash
+    if not pe:
+        try:
+            if file_data:
+                exe = pefile.PE(data=file_data)
+            elif file_path:
+                exe = pefile.PE(file_path)
+            else:
+                if raise_on_error:
+                    raise Exception('No valid arguments provided')
+                return None
+        except Exception as e:
+            if raise_on_error:
+                raise
+            else:
+                return None
+    else:
+        exe = pe
+
+    try:
+        # Image Characteristics
+        img_chars = bitstring.pack('uint:16', exe.FILE_HEADER.Characteristics)
+        pehash_bin = img_chars[0:8] ^ img_chars[8:16]
+
+        # Subsystem
         subsystem = bitstring.pack('uint:16', exe.FILE_HEADER.Machine)
         pehash_bin.append(subsystem[0:8] ^ subsystem[8:16])
 
@@ -514,6 +623,13 @@ def totalhash_hex(file_path=None, pe=None, file_data=None, hasher=None, raise_on
         return hd.hexdigest()
 
 
+def anymaster_v1_0_1_hex(file_path=None, pe=None, file_data=None, hasher=None, raise_on_error=False):
+    """Same as anymaster_v1_0_1(...) but returns either str hex digest or None."""
+    hd = anymaster(file_path, pe, file_data, hasher, raise_on_error)
+    if hd:
+        return hd.hexdigest()
+
+
 def anymaster_hex(file_path=None, pe=None, file_data=None, hasher=None, raise_on_error=False):
     """Same as anymaster(...) but returns either str hex digest or None."""
     hd = anymaster(file_path, pe, file_data, hasher, raise_on_error)
@@ -543,6 +659,7 @@ if __name__ == '__main__':
         sys.exit(0)
     pe = pefile.PE(sys.argv[1])
     print('totalhash', totalhash(pe=pe).hexdigest(), sys.argv[1])
-    print( 'anymaster', anymaster(pe=pe).hexdigest(), sys.argv[1])
+    print('anymaster', anymaster(pe=pe).hexdigest(), sys.argv[1])
+    print('anymaster_v1_0_1', anymaster_v1_0_1(pe=pe).hexdigest(), sys.argv[1])
     print('endgame', endgame(pe=pe).hexdigest(), sys.argv[1])
     print('crits', crits(pe=pe).hexdigest(), sys.argv[1])
