@@ -47,6 +47,7 @@ import string
 import hashlib
 import pefile
 import bitstring
+import struct
 
 def totalhash(file_path=None, pe=None, file_data=None, hasher=None, raise_on_error=False):
     """Given a PE file, calculate the pehash using the
@@ -611,6 +612,90 @@ def crits(file_path=None, pe=None, file_data=None, hasher=None, raise_on_error=F
         return hasher
 
     except Exception as e:
+        print why
+        if raise_on_error:
+            raise
+        else:
+            return None
+
+def pehashng(file_path, pe, file_data, hasher, raise_on_error):
+    """ Return pehashng for PE file, sha256 of PE structural properties.
+    :param pe_file: file name or instance of pefile.PE() class
+    :return: SHA256 in hexdigest format, None in case of pefile.PE() error
+    :rtype: str
+    """
+
+    def align_down_p2(number):
+        return 1 << (number.bit_length() - 1) if number else 0
+
+    def align_up(number, boundary_p2):
+        assert not boundary_p2 & (boundary_p2 - 1), \
+            "Boundary '%d' is not a power of 2" % boundary_p2
+        boundary_p2 -= 1
+        return (number + boundary_p2) & ~ boundary_p2
+
+    def get_dirs_status():
+        dirs_status = 0
+        for idx in range(min(exe.OPTIONAL_HEADER.NumberOfRvaAndSizes, 16)):
+            if exe.OPTIONAL_HEADER.DATA_DIRECTORY[idx].VirtualAddress:
+                dirs_status |= (1 << idx)
+        return dirs_status
+
+    def get_complexity():
+        complexity = 0
+        if section.SizeOfRawData:
+            complexity = (len(bz2.compress(section.get_data())) *
+                          7.0 /
+                          section.SizeOfRawData)
+            complexity = 8 if complexity > 7 else int(round(complexity))
+        return complexity
+
+
+    if not pe:
+        try:
+            if file_data:
+                exe = pefile.PE(data=file_data)
+            elif file_path:
+                exe = pefile.PE(file_path)
+            else:
+                if raise_on_error:
+                    raise Exception('No valid arguments provided')
+                return None
+        except Exception as e:
+            if raise_on_error:
+                raise
+            else:
+                return None
+    else:
+        exe = pe
+
+
+
+    try:
+
+        characteristics_mask = 0b0111111100100011
+        data_directory_mask = 0b0111111001111111
+
+        data = [
+            struct.pack('> H', exe.FILE_HEADER.Characteristics & characteristics_mask),
+            struct.pack('> H', exe.OPTIONAL_HEADER.Subsystem),
+            struct.pack("> I", align_down_p2(exe.OPTIONAL_HEADER.SectionAlignment)),
+            struct.pack("> I", align_down_p2(exe.OPTIONAL_HEADER.FileAlignment)),
+            struct.pack("> Q", align_up(exe.OPTIONAL_HEADER.SizeOfStackCommit, 4096)),
+            struct.pack("> Q", align_up(exe.OPTIONAL_HEADER.SizeOfHeapCommit, 4096)),
+            struct.pack('> H', get_dirs_status() & data_directory_mask)]
+
+        for section in exe.sections:
+            data += [
+                struct.pack('> I', align_up(section.VirtualAddress, 512)),
+                struct.pack('> I', align_up(section.SizeOfRawData, 512)),
+                struct.pack('> B', section.Characteristics >> 24),
+                struct.pack("> B", get_complexity())]
+
+        hasher = hashlib.sha256(b"".join(data))
+        return hasher
+    except Exception, why:
+        print why
         if raise_on_error:
             raise
         else:
@@ -651,6 +736,12 @@ def crits_hex(file_path=None, pe=None, file_data=None, hasher=None, raise_on_err
     if hd:
         return hd.hexdigest()
 
+def pehashng_hex(file_path=None, pe=None, file_data=None, hasher=None, raise_on_error=False):
+    """Same as pehashng(...) but returns either str hex digest or None."""
+    hd = pehashng(file_path, pe, file_data, hasher, raise_on_error)
+    if hd:
+        return hd.hexdigest()
+
 
 ##################################################
 def main():
@@ -666,6 +757,8 @@ def main():
                         default=False, help="Generate endgame pehash")
     parser.add_argument('--crits', dest='crits', action='store_true',
                         default=False, help="Generate crits pehash")
+    parser.add_argument('--pehashng', dest='pehashng', action='store_true',
+                        default=False, help="Generate pehashng (https://github.com/AnyMaster/pehashng)")
 
     parser.add_argument('binaries', metavar='binaries', type=str, nargs='+',
                         help='list of pe files to process')
@@ -676,21 +769,24 @@ def main():
         try:
             pe = pefile.PE(binary)
             if args.totalhash:
-                print("{}\t{}".format(binary, totalhash_hex(pe=pe)))
+                print("{}\tTotalhash {}".format(binary, totalhash_hex(pe=pe)))
             elif args.anymaster:
-                print("{}\t{}".format(binary, anymaster_hex(pe=pe)))
+                print("{}\tAnyMaster {}".format(binary, anymaster_hex(pe=pe)))
             elif args.anymaster_v1:
-                print("{}\t{}".format(binary, anymaster_v1_0_1_hex(pe=pe)))
+                print("{}\tAnyMaster_v1.0.1 {}".format(binary, anymaster_v1_0_1_hex(pe=pe)))
             elif args.endgame:
-                print("{}\t{}".format(binary, endgame_hex(pe=pe)))
+                print("{}\tEndGame {}".format(binary, endgame_hex(pe=pe)))
             elif args.crits:
-                print("{}\t{}".format(binary, crits_hex(pe=pe)))
+                print("{}\tCrits {}".format(binary, crits_hex(pe=pe)))
+            elif args.pehashng:
+                print("{}\tpehashNG {}".format(binary, pehashng_hex(pe=pe)))
             else:
-                print("{}\t{}".format(binary, totalhash_hex(pe=pe)))
-                print("{}\t{}".format(binary, anymaster_hex(pe=pe)))
-                print("{}\t{}".format(binary, anymaster_v1_0_1_hex(pe=pe)))
-                print("{}\t{}".format(binary, endgame_hex(pe=pe)))
-                print("{}\t{}".format(binary, crits_hex(pe=pe)))
+                print("{}\tTotalhash {}".format(binary, totalhash_hex(pe=pe)))
+                print("{}\tAnyMaster {}".format(binary, anymaster_hex(pe=pe)))
+                print("{}\tAnyMaster_v1.0.1 {}".format(binary, anymaster_v1_0_1_hex(pe=pe)))
+                print("{}\tEndGame {}".format(binary, endgame_hex(pe=pe)))
+                print("{}\tCrits {}".format(binary, crits_hex(pe=pe)))
+                print("{}\tpehashNG {}".format(binary, pehashng_hex(pe=pe)))
         except pefile.PEFormatError:
             print("{} is not a PE file".format(binary))
 
