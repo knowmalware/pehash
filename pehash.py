@@ -41,6 +41,7 @@ Original paper:
 from __future__ import division
 
 import sys
+import argparse
 import bz2
 import string
 import hashlib
@@ -652,14 +653,46 @@ def crits_hex(file_path=None, pe=None, file_data=None, hasher=None, raise_on_err
 
 
 ##################################################
+def main():
+
+    parser = argparse.ArgumentParser(description='Process pehash in different ways')
+    parser.add_argument('--totalhash', dest='totalhash', action='store_true',
+                        default=False, help="Generate totalhash pehash")
+    parser.add_argument('--anymaster', dest='anymaster', action='store_true',
+                        default=False, help="Generate anymaster pehash")
+    parser.add_argument('--anymaster_v1', dest='anymaster_v1', action='store_true',
+                        default=False, help="Generate anymaster v1.0.1 pehash")
+    parser.add_argument('--endgame', dest='endgame', action='store_true',
+                        default=False, help="Generate endgame pehash")
+    parser.add_argument('--crits', dest='crits', action='store_true',
+                        default=False, help="Generate crits pehash")
+
+    parser.add_argument('binaries', metavar='binaries', type=str, nargs='+',
+                        help='list of pe files to process')
+
+    args = parser.parse_args()
+
+    for binary in args.binaries:
+        try:
+            pe = pefile.PE(binary)
+            if args.totalhash:
+                print("{}\t{}".format(binary, totalhash_hex(pe=pe)))
+            elif args.anymaster:
+                print("{}\t{}".format(binary, anymaster_hex(pe=pe)))
+            elif args.anymaster_v1:
+                print("{}\t{}".format(binary, anymaster_v1_0_1_hex(pe=pe)))
+            elif args.endgame:
+                print("{}\t{}".format(binary, endgame_hex(pe=pe)))
+            elif args.crits:
+                print("{}\t{}".format(binary, crits_hex(pe=pe)))
+            else:
+                print("{}\t{}".format(binary, totalhash_hex(pe=pe)))
+                print("{}\t{}".format(binary, anymaster_hex(pe=pe)))
+                print("{}\t{}".format(binary, anymaster_v1_0_1_hex(pe=pe)))
+                print("{}\t{}".format(binary, endgame_hex(pe=pe)))
+                print("{}\t{}".format(binary, crits_hex(pe=pe)))
+        except pefile.PEFormatError:
+            print("{} is not a PE file".format(binary))
+
 if __name__ == '__main__':
-    import sys
-    if len(sys.argv) < 2:
-        print("Error: no file specified")
-        sys.exit(0)
-    pe = pefile.PE(sys.argv[1])
-    print('totalhash', totalhash_hex(pe=pe), sys.argv[1])
-    print('anymaster', anymaster_hex(pe=pe), sys.argv[1])
-    print('anymaster_v1_0_1', anymaster_v1_0_1_hex(pe=pe), sys.argv[1])
-    print('endgame', endgame_hex(pe=pe), sys.argv[1])
-    print('crits', crits_hex(pe=pe), sys.argv[1])
+    main()
