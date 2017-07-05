@@ -5,4 +5,4 @@ script:
     - curl -sLo 7z465.exe http://www.oldapps.com/7zip.php?app=fcd1b1472302fc7283147f4df471f402
     - curl -sLo firefox-37-0-2.exe http://www.oldapps.com/firefox.php?app=3F198D31352656838D06B68693E56D89
     - curl -sLo winrar-x64-521.exe http://www.oldapps.com/winrar.php?app=9B6F7231533F04B75F3B3C86CB9D0117
-    - pytest
+    - py.test
