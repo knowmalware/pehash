@@ -1,6 +1,8 @@
 language: python
 python:
     - 2.7
+install:
+    - pip install .
 script:
     - curl -sLo 7z465.exe http://www.oldapps.com/7zip.php?app=fcd1b1472302fc7283147f4df471f402
     - curl -sLo firefox-37-0-2.exe http://www.oldapps.com/firefox.php?app=3F198D31352656838D06B68693E56D89
