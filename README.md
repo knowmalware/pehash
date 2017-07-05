@@ -35,3 +35,8 @@ Arguments:
     emergent threats: botnets, spyware, worms, and more (LEET'09). USENIX
     Association, Berkeley, CA, USA, 1-1.
     https://www.usenix.org/legacy/event/leet09/tech/full_papers/wicherski/wicherski.pdf
+
+## Project status
+
+[Travis-CI](https://travis-ci.org/): [![Build Status](https://travis-ci.org/knowmalware/pehash.svg?branch=master)](https://travis-ci.org/knowmalware/pehash)
+
