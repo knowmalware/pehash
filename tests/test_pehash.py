@@ -1,6 +1,7 @@
 
 import pehash
 import pefile
+import pytest
 
 class TestTotalhash(object):
 
@@ -72,4 +73,15 @@ class TestPehashng(object):
 
     def test_winrar(self):
         assert pehash.pehashng_hex('winrar-x64-521.exe') == '19c2632698fe1cdb19f304e704450478a1314a3fdf8b0f69f18a46a1a3d5d03d'
+
+
+class TestExceptions(object):
+
+    def test_totalhash(self):
+        with pytest.raises(ValueError):
+            pehash.totalhash_hex('winrar-x64-521.exe', raise_on_error=True)
+
+    def test_crits(self):
+        with pytest.raises(ValueError):
+            pehash.crits_hex('winrar-x64-521.exe', raise_on_error=True)
 
