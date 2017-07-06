@@ -611,7 +611,7 @@ def crits(file_path=None, pe=None, file_data=None, hasher=None, raise_on_error=F
         hasher.update(pehash_bin.tobytes())
         return hasher
 
-    except Exception as e:
+    except Exception as why:
         print why
         if raise_on_error:
             raise
