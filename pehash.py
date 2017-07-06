@@ -612,7 +612,6 @@ def crits(file_path=None, pe=None, file_data=None, hasher=None, raise_on_error=F
         return hasher
 
     except Exception as why:
-        print why
         if raise_on_error:
             raise
         else:
@@ -695,7 +694,6 @@ def pehashng(file_path, pe, file_data, hasher, raise_on_error):
         hasher = hashlib.sha256(b"".join(data))
         return hasher
     except Exception, why:
-        print why
         if raise_on_error:
             raise
         else:
@@ -759,6 +757,8 @@ def main():
                         default=False, help="Generate crits pehash")
     parser.add_argument('--pehashng', dest='pehashng', action='store_true',
                         default=False, help="Generate pehashng (https://github.com/AnyMaster/pehashng)")
+    parser.add_argument('-v', dest='verbose', action='count',
+                        help="Raise pehash exceptions instead of ignoring.")
 
     parser.add_argument('binaries', metavar='binaries', type=str, nargs='+',
                         help='list of pe files to process')
@@ -768,27 +768,23 @@ def main():
     for binary in args.binaries:
         try:
             pe = pefile.PE(binary)
-            if args.totalhash:
-                print("{}\tTotalhash {}".format(binary, totalhash_hex(pe=pe)))
-            elif args.anymaster:
-                print("{}\tAnyMaster {}".format(binary, anymaster_hex(pe=pe)))
-            elif args.anymaster_v1:
-                print("{}\tAnyMaster_v1.0.1 {}".format(binary, anymaster_v1_0_1_hex(pe=pe)))
-            elif args.endgame:
-                print("{}\tEndGame {}".format(binary, endgame_hex(pe=pe)))
-            elif args.crits:
-                print("{}\tCrits {}".format(binary, crits_hex(pe=pe)))
-            elif args.pehashng:
-                print("{}\tpehashNG {}".format(binary, pehashng_hex(pe=pe)))
-            else:
-                print("{}\tTotalhash {}".format(binary, totalhash_hex(pe=pe)))
-                print("{}\tAnyMaster {}".format(binary, anymaster_hex(pe=pe)))
-                print("{}\tAnyMaster_v1.0.1 {}".format(binary, anymaster_v1_0_1_hex(pe=pe)))
-                print("{}\tEndGame {}".format(binary, endgame_hex(pe=pe)))
-                print("{}\tCrits {}".format(binary, crits_hex(pe=pe)))
-                print("{}\tpehashNG {}".format(binary, pehashng_hex(pe=pe)))
+            do_all = not (args.totalhash or args.anymaster or args.anymaster_v1 or
+                    args.endgame or args.crits or args.pehashng)
+            raise_on_error = True if args.verbose > 0 else False
+            if args.totalhash or do_all:
+                print("{}\tTotalhash\t{}".format(binary, totalhash_hex(pe=pe, raise_on_error=raise_on_error)))
+            if args.anymaster or do_all:
+                print("{}\tAnyMaster\t{}".format(binary, anymaster_hex(pe=pe, raise_on_error=raise_on_error)))
+            if args.anymaster_v1 or do_all:
+                print("{}\tAnyMaster_v1.0.1\t{}".format(binary, anymaster_v1_0_1_hex(pe=pe, raise_on_error=raise_on_error)))
+            if args.endgame or do_all:
+                print("{}\tEndGame\t{}".format(binary, endgame_hex(pe=pe, raise_on_error=raise_on_error)))
+            if args.crits or do_all:
+                print("{}\tCrits\t{}".format(binary, crits_hex(pe=pe, raise_on_error=raise_on_error)))
+            if args.pehashng or do_all:
+                print("{}\tpeHashNG\t{}".format(binary, pehashng_hex(pe=pe, raise_on_error=raise_on_error)))
         except pefile.PEFormatError:
-            print("{} is not a PE file".format(binary))
+            print("ERROR: {} is not a PE file".format(binary))
 
 if __name__ == '__main__':
     main()
