@@ -61,3 +61,15 @@ class TestCrits(object):
     def test_winrar(self):
         assert pehash.crits_hex('winrar-x64-521.exe') == None
 
+
+class TestPehashng(object):
+
+    def test_7zip(self):
+        assert pehash.pehashng_hex('7z465.exe') == '3381c8855941fa1a9ac91d84da71a21a743e031af3fde9cc0db202717109202e'
+
+    def test_firefox(self):
+        assert pehash.pehashng_hex('firefox-37-0-2.exe') == '79f947c9d836fd94386ee5832fe4350cc94cd2dcd0ee62a06278a99df7381cf7'
+
+    def test_winrar(self):
+        assert pehash.pehashng_hex('winrar-x64-521.exe') == '19c2632698fe1cdb19f304e704450478a1314a3fdf8b0f69f18a46a1a3d5d03d'
+
