@@ -60,7 +60,7 @@ class TestCrits(object):
         assert pehash.crits_hex('firefox-37-0-2.exe') == '1729dbba4aa062a7784ce6e057a27a2479d53df7'
 
     def test_winrar(self):
-        assert pehash.crits_hex('winrar-x64-521.exe') == None
+        assert pehash.crits_hex('winrar-x64-521.exe') == '85b2dea5f096e4a19691b1a4b0d54171f8f32fee'
 
 
 class TestPehashng(object):
@@ -80,8 +80,4 @@ class TestExceptions(object):
     def test_totalhash(self):
         with pytest.raises(ValueError):
             pehash.totalhash_hex('winrar-x64-521.exe', raise_on_error=True)
-
-    def test_crits(self):
-        with pytest.raises(ValueError):
-            pehash.crits_hex('winrar-x64-521.exe', raise_on_error=True)
 
