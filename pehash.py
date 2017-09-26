@@ -49,6 +49,10 @@ import pefile
 import bitstring
 import struct
 
+PY3 = False
+if sys.version_info > (3,):
+    PY3 = True
+
 def totalhash(file_path=None, pe=None, file_data=None, hasher=None, raise_on_error=False):
     """Given a PE file, calculate the pehash using the
     TotalHash / Viper implementation.
@@ -107,7 +111,10 @@ def totalhash(file_path=None, pe=None, file_data=None, hasher=None, raise_on_err
 
         #Stack Commit Size
         stk_size = bitstring.BitArray(hex(exe.OPTIONAL_HEADER.SizeOfStackCommit))
-        stk_size_bits = string.zfill(stk_size.bin, 32)
+        if PY3:
+            stk_size_bits = stk_size.bin.zfill(32)
+        else:
+            stk_size_bits = string.zfill(stk_size.bin, 32)
         #now xor the bits
         stk_size = bitstring.BitArray(bin=stk_size_bits)
         stk_size_xor = stk_size[8:16] ^ stk_size[16:24] ^ stk_size[24:32]
@@ -117,7 +124,10 @@ def totalhash(file_path=None, pe=None, file_data=None, hasher=None, raise_on_err
 
         #Heap Commit Size
         hp_size = bitstring.BitArray(hex(exe.OPTIONAL_HEADER.SizeOfHeapCommit))
-        hp_size_bits = string.zfill(hp_size.bin, 32)
+        if PY3:
+            hp_size_bits = hp_size.bin.zfill(32)
+        else:
+            hp_size_bits = string.zfill(hp_size.bin, 32)
         #now xor the bits
         hp_size = bitstring.BitArray(bin=hp_size_bits)
         hp_size_xor = hp_size[8:16] ^ hp_size[16:24] ^ hp_size[24:32]
@@ -136,7 +146,10 @@ def totalhash(file_path=None, pe=None, file_data=None, hasher=None, raise_on_err
             #rawsize
             sect_rs =  bitstring.BitArray(hex(section.SizeOfRawData))
             sect_rs = bitstring.BitArray(bytes=sect_rs.tobytes())
-            sect_rs_bits = string.zfill(sect_rs.bin, 32)
+            if PY3:
+                sect_rs_bits = sect_rs.bin.zfill(32)
+            else:
+                sect_rs_bits = string.zfill(sect_rs.bin, 32)
             sect_rs = bitstring.BitArray(bin=sect_rs_bits)
             sect_rs = bitstring.BitArray(bytes=sect_rs.tobytes())
             sect_rs_bits = sect_rs[8:32]
@@ -484,7 +497,7 @@ def endgame(file_path=None, pe=None, file_data=None, hasher=None, raise_on_error
 
         if not hasher:
             hasher = hashlib.md5()
-        hasher.update(str(hash))
+        hasher.update(str(hash).encode('utf-8'))
         return hasher
 
     except Exception as e:
@@ -553,7 +566,10 @@ def crits(file_path=None, pe=None, file_data=None, hasher=None, raise_on_error=F
 
         #Stack Commit Size
         stk_size = bitstring.BitArray(hex(exe.OPTIONAL_HEADER.SizeOfStackCommit))
-        stk_size_bits = string.zfill(stk_size.bin, 32)
+        if PY3:
+            stk_size_bits = stk_size.bin.zfill(32)
+        else:
+            stk_size_bits = string.zfill(stk_size.bin, 32)
         #now xor the bits
         stk_size = bitstring.BitArray(bin=stk_size_bits)
         stk_size_xor = stk_size[8:15] ^ stk_size[16:23] ^ stk_size[24:31]
@@ -563,7 +579,10 @@ def crits(file_path=None, pe=None, file_data=None, hasher=None, raise_on_error=F
 
         #Heap Commit Size
         hp_size = bitstring.BitArray(hex(exe.OPTIONAL_HEADER.SizeOfHeapCommit))
-        hp_size_bits = string.zfill(hp_size.bin, 32)
+        if PY3:
+            hp_size_bits = hp_size.bin.zfill(32)
+        else:
+            hp_size_bits = string.zfill(hp_size.bin, 32)
         #now xor the bits
         hp_size = bitstring.BitArray(bin=hp_size_bits)
         hp_size_xor = hp_size[8:15] ^ hp_size[16:23] ^ hp_size[24:31]
@@ -581,7 +600,10 @@ def crits(file_path=None, pe=None, file_data=None, hasher=None, raise_on_error=F
             #rawsize
             sect_rs =  bitstring.BitArray(hex(section.SizeOfRawData))
             sect_rs = bitstring.BitArray(bytes=sect_rs.tobytes())
-            sect_rs_bits = string.zfill(sect_rs.bin, 32)
+            if PY3:
+                sect_rs_bits = sect_rs.bin.zfill(32)
+            else:
+                sect_rs_bits = string.zfill(sect_rs.bin, 32)
             sect_rs = bitstring.BitArray(bin=sect_rs_bits)
             sect_rs = bitstring.BitArray(bytes=sect_rs.tobytes())
             sect_rs_bits = sect_rs[8:31]
@@ -619,7 +641,7 @@ def crits(file_path=None, pe=None, file_data=None, hasher=None, raise_on_error=F
         else:
             return None
 
-def pehashng(file_path, pe, file_data, hasher, raise_on_error):
+def pehashng(file_path=None, pe=None, file_data=None, hasher=None, raise_on_error=False):
     """ Return pehashng for PE file, sha256 of PE structural properties.
     :param pe_file: file name or instance of pefile.PE() class
     :return: SHA256 in hexdigest format, None in case of pefile.PE() error
