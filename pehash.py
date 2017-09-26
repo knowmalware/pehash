@@ -781,7 +781,7 @@ def main():
                         default=False, help="Generate crits pehash")
     parser.add_argument('--pehashng', dest='pehashng', action='store_true',
                         default=False, help="Generate pehashng (https://github.com/AnyMaster/pehashng)")
-    parser.add_argument('-v', dest='verbose', action='count',
+    parser.add_argument('-v', dest='verbose', action='count', default=0,
                         help="Raise pehash exceptions instead of ignoring.")
 
     parser.add_argument('binaries', metavar='binaries', type=str, nargs='+',
