@@ -695,7 +695,7 @@ def pehashng(file_path, pe, file_data, hasher, raise_on_error):
 
         hasher = hashlib.sha256(b"".join(data))
         return hasher
-    except Exception, why:
+    except Exception as why:
         if raise_on_error:
             raise
         else:
