@@ -1,0 +1,17 @@
+[
+{"md5": "30fe2f9a048d7a734c8d9233f64810ba", "filename": "Win32.Wannacry.exe", "pehash": { "totalhash": "2e917943a9d2d4e6aade0111bd44807b51b209cf", "anymaster": "49b8c76c5dff61c4c0c4db734ab859c7f57876ca", "anymaster_v1_0_1": "352bdfb31b64b3e732c12b18dc3e0b989c406d03", "endgame": "f9f63e7c54e2f2a714c89f5115573370", "crits": "c41700b798151a7f80f7f6e4109f945195d529ca", "pehashng": "e101ceeb275dc2e529af380c9cd2d0beb1536e4fc4c69129b7f89d7ff907500b"}},
+{"md5": "eb1ef1b908b16e264dd4e0e8b480ee37", "filename": "ydrHrp_One.dll", "pehash": { 
+"totalhash": "ac53f926bf6f51b037fb866b07dd4610571dd241",
+"anymaster": "863d9658ac326a80c88e287d374069a09b9f8644",
+"anymaster_v1_0_1": "63e8b8c285eadb3a9da43f9e12323a69672bce24",
+"endgame": "b61432dee9009d663638fdfcafaf12e1",
+"crits": "01a42f34d7344577ab710d0a1d94b8634f7e0935",
+"pehashng": "ab7a7d589dbd02939a8e50620cc19c82234879110a6687b7b7c22f09c293972f"}},
+{"md5": "786e61331a1e84b7fe26c254de0280ad", "filename": "Win64.Trojan.GreenBug", "pehash": {
+"totalhash": null,
+"anymaster": "f71a6bd90db7fc573080b87c4f723cb4077fc7d3",
+"anymaster_v1_0_1": "7b3b69c215f2fd82efda70f813c9a18a637d4fa3",
+"endgame": "5b3cfd5dbff86a883615ce48b7e5f6a6",
+"crits": "e59d811253752fc5e578f0abdf60b75ccb6f60cb",
+"pehashng": "64e07be26beadcf9c8cb83ac9db8a7dea4eae33b4adf289a29f8a26408a0e3da"}}
+]
